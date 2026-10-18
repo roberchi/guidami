@@ -73,11 +73,14 @@ export interface ExerciseDefinition {
 
 export interface LearningActivityDefinition {
   id: string;
+  completionId: string;
   type: "lesson" | "review" | "language" | "quiz" | "simulation";
   title: string;
   description: string;
   route: string;
   estimatedMinutes: number;
+  planOrder: number;
+  suggestedDayOffset: number;
   conceptIds: string[];
   languageFeatureIds: string[];
   prerequisiteConceptIds: string[];

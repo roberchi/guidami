@@ -259,6 +259,8 @@ Mostrare “Cosa facciamo oggi?”, durata stimata 10–15 minuti, massimo tre a
 ### 13.2 Piano (FR-PL-02)
 Il piano contiene un nuovo concetto, un ripasso e, quando utile, un breve esercizio linguistico. Può essere ridotto a una sessione da 5 minuti. Le interruzioni non azzerano i progressi.
 
+Mostrare anche una traccia di massima delle attività successive, chiarendo che contenuti e tempi possono cambiare in base ai risultati ottenuti. I giorni proposti sono indicativi: lo studente può iniziare in anticipo la prima attività non completata, mentre le attività successive restano bloccate per preservare la sequenza del percorso.
+
 ### 13.3 Feedback motivazionale (FR-PL-03)
 Riconoscere concetti compresi, autonomia crescente e continuità, senza classifiche pubbliche o penalizzazioni per assenze. Evitare promesse o stime non validate del successo all'esame.
 

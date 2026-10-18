@@ -6,6 +6,8 @@ import type {
 } from "../../domain/models";
 import { defaultSnapshot } from "../../domain/models";
 import type { LearningAttempt } from "../../domain/learning/types";
+import type { AssessmentSession } from "../../domain/assessment/types";
+import { assessmentAnswersFromSession } from "../../domain/assessment/assessment";
 import { contentCatalog } from "../../content/catalog/catalog";
 import { projectLearning } from "../../domain/learning/projectLearning";
 import { db } from "./GuidamiDatabase";
@@ -61,26 +63,27 @@ export const learningRepository = {
     const storedVersion = stored?.value && typeof stored.value === "object"
       ? (stored.value as { schemaVersion?: unknown }).schemaVersion
       : undefined;
-    if (stored && storedVersion !== 2) await putSnapshot(migrated);
+    if (stored && storedVersion !== 3) await putSnapshot(migrated);
     return migrated;
   },
 
   async saveAssessment(
-    answers: Record<string, string>,
+    session: AssessmentSession,
     profile: LearningProfile
   ): Promise<AppSnapshot> {
     const deviceId = await getDeviceId();
     const current = await this.load();
+    const answers = assessmentAnswersFromSession(session);
     const event: LearningEvent = {
       id: id("event"),
       deviceId,
       studentProfileId: profile.id,
       type: "assessment.completed",
       occurredAt: new Date().toISOString(),
-      schemaVersion: 2,
-      payload: { answers, profile }
+      schemaVersion: 3,
+      payload: { session, profile }
     };
-    const next: AppSnapshot = { ...current, profile, assessmentAnswers: answers };
+    const next: AppSnapshot = { ...current, profile, assessmentAnswers: answers, assessmentSession: session };
 
     await db.transaction("rw", db.events, db.records, async () => {
       await db.events.add(event);
@@ -89,9 +92,13 @@ export const learningRepository = {
     return next;
   },
 
-  async saveAssessmentDraft(answers: Record<string, string>): Promise<AppSnapshot> {
+  async saveAssessmentSession(session: AssessmentSession): Promise<AppSnapshot> {
     const current = await this.load();
-    const next = { ...current, assessmentAnswers: answers };
+    const next = {
+      ...current,
+      assessmentAnswers: assessmentAnswersFromSession(session),
+      assessmentSession: session
+    };
     await putSnapshot(next);
     return next;
   },
@@ -193,7 +200,7 @@ export const learningRepository = {
     const snapshot = await this.load();
     const events = await db.events.toArray();
     return JSON.stringify(
-      { product: "guidami", schemaVersion: 2, exportedAt: new Date().toISOString(), snapshot, events },
+      { product: "guidami", schemaVersion: 3, exportedAt: new Date().toISOString(), snapshot, events },
       null,
       2
     );
@@ -205,7 +212,7 @@ export const learningRepository = {
     const backup = parsed as { product?: unknown; schemaVersion?: unknown; snapshot?: unknown; events?: unknown };
     if (
       backup.product !== "guidami" ||
-      (backup.schemaVersion !== 1 && backup.schemaVersion !== 2) ||
+      (backup.schemaVersion !== 1 && backup.schemaVersion !== 2 && backup.schemaVersion !== 3) ||
       !isSnapshotCandidate(backup.snapshot)
     ) {
       throw new Error("Questo file non è una copia di sicurezza Guidami compatibile");

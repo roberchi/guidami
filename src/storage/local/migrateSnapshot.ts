@@ -1,5 +1,6 @@
 import type { AppSnapshot } from "../../domain/models";
 import { defaultSnapshot } from "../../domain/models";
+import type { AssessmentSession } from "../../domain/assessment/types";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -8,6 +9,18 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 export function isSnapshotCandidate(value: unknown): boolean {
   if (!isRecord(value)) return false;
   return isRecord(value.preferences) && isRecord(value.progress) && isRecord(value.sync);
+}
+
+function isAssessmentSessionCandidate(value: unknown): value is AssessmentSession {
+  if (!isRecord(value)) return false;
+  return value.schemaVersion === 1
+    && typeof value.id === "string"
+    && typeof value.configurationId === "string"
+    && (value.sequenceVariant === "A" || value.sequenceVariant === "B")
+    && Array.isArray(value.questionIds)
+    && typeof value.currentQuestionId === "string"
+    && isRecord(value.observations)
+    && (value.status === "in-progress" || value.status === "paused" || value.status === "completed");
 }
 
 export function migrateSnapshot(value: unknown): AppSnapshot {
@@ -21,7 +34,7 @@ export function migrateSnapshot(value: unknown): AppSnapshot {
   return {
     ...structuredClone(defaultSnapshot),
     ...value,
-    schemaVersion: 2,
+    schemaVersion: 3,
     contentReleaseId: typeof value.contentReleaseId === "string"
       ? value.contentReleaseId
       : defaultSnapshot.contentReleaseId,
@@ -29,6 +42,9 @@ export function migrateSnapshot(value: unknown): AppSnapshot {
     assessmentAnswers: isRecord(value.assessmentAnswers)
       ? value.assessmentAnswers as Record<string, string>
       : {},
+    assessmentSession: isAssessmentSessionCandidate(value.assessmentSession)
+      ? value.assessmentSession
+      : null,
     preferences: {
       ...defaultSnapshot.preferences,
       ...preferences

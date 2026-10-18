@@ -11,11 +11,13 @@ describe("migrazione dello stato locale", () => {
       sync: { mode: "local", pendingBatchIds: [], status: "local" }
     });
 
-    expect(migrated.schemaVersion).toBe(2);
+    expect(migrated.schemaVersion).toBe(3);
     expect(migrated.profile?.id).toBe("profile-1");
     expect(migrated.progress.completedLessons).toEqual(["precedenze-base"]);
     expect(migrated.learning.attempts).toEqual([]);
     expect(migrated.learning.projection.projectorVersion).toBe(1);
+    expect(migrated.assessmentAnswers).toEqual({ confidence: "some" });
+    expect(migrated.assessmentSession).toBeNull();
   });
 
   it("ripristina valori sicuri quando il contenuto è incompleto", () => {

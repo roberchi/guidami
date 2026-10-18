@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowRight, Check, Eye, Lightbulb, RotateCcw, Volume2 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { CrossroadIllustration } from "../../components/illustrations/CrossroadIllustration";
 import { AppButton } from "../../components/ui/AppButton";
 import { ListenButton } from "../../components/ui/ListenButton";
@@ -12,24 +12,30 @@ const lessonSteps = ["Obiettivo", "La regola", "Caso guidato", "Prova tu"];
 
 export function LessonPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const dispatch = useAppDispatch();
+  const completedLessons = useAppSelector((state) => state.learning.snapshot.progress.completedLessons);
   const savedStep = useAppSelector((state) => state.learning.snapshot.progress.lessonStep);
+  const isReview = searchParams.get("modalita") === "ripasso";
+  const canStart = !isReview || completedLessons.includes("precedenze-base");
   const [step, setStep] = useState(Math.min(savedStep, lessonSteps.length - 1));
   const [answer, setAnswer] = useState<string>();
   const [checked, setChecked] = useState(false);
 
   useEffect(() => {
-    void dispatch(saveLessonCheckpoint(step));
-  }, [dispatch, step]);
+    if (canStart) void dispatch(saveLessonCheckpoint(step));
+  }, [canStart, dispatch, step]);
 
   function next() {
     if (step < lessonSteps.length - 1) setStep((current) => current + 1);
   }
 
   async function complete() {
-    await dispatch(finishLesson("precedenze-base")).unwrap();
+    await dispatch(finishLesson(isReview ? "ripasso-precedenze-base" : "precedenze-base")).unwrap();
     navigate("/oggi");
   }
+
+  if (!canStart) return <Navigate to="/oggi" replace />;
 
   return (
     <section className={styles.lessonPage}>

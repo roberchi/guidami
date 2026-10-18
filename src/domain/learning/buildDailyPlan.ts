@@ -6,6 +6,7 @@ interface PlanInput {
   projection: LearningProjection;
   now: string;
   maxActivities?: number;
+  completedActivityIds?: string[];
 }
 
 function toPlanned(
@@ -15,6 +16,7 @@ function toPlanned(
 ): PlannedActivity {
   return {
     activityId: activity.id,
+    completionId: activity.completionId,
     type: activity.type,
     title: activity.title,
     description: activity.description,
@@ -36,10 +38,14 @@ export function buildDailyPlan({
   catalog,
   projection,
   now,
-  maxActivities = 3
+  maxActivities = 3,
+  completedActivityIds = []
 }: PlanInput): DailyPlan {
   const candidates: PlannedActivity[] = [];
-  const available = catalog.activities.filter((activity) => activity.available);
+  const completed = new Set(completedActivityIds);
+  const available = catalog.activities.filter(
+    (activity) => activity.available && !completed.has(activity.completionId)
+  );
   const nowTime = new Date(now).getTime();
 
   for (const review of projection.reviews) {

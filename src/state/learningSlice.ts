@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/tool
 import { contentCatalog } from "../content/catalog/catalog";
 import { validateCatalog } from "../content/catalog/validateCatalog";
 import { buildLearningProfile } from "../domain/assessment/assessment";
+import type { AssessmentSession } from "../domain/assessment/types";
 import type { LearningAttempt } from "../domain/learning/types";
 import type { AppSnapshot, Preferences } from "../domain/models";
 import { defaultSnapshot } from "../domain/models";
@@ -28,16 +29,16 @@ export const bootstrapApp = createAsyncThunk("learning/bootstrap", () => {
 
 export const finishAssessment = createAsyncThunk(
   "learning/finishAssessment",
-  async (answers: Record<string, string>, { getState }) => {
+  async (session: AssessmentSession, { getState }) => {
     const state = getState() as { learning: LearningState };
-    const profile = buildLearningProfile(answers, state.learning.snapshot.profile?.id);
-    return learningRepository.saveAssessment(answers, profile);
+    const profile = buildLearningProfile(session, state.learning.snapshot.profile?.id);
+    return learningRepository.saveAssessment(session, profile);
   }
 );
 
-export const saveAssessmentDraft = createAsyncThunk(
-  "learning/saveAssessmentDraft",
-  (answers: Record<string, string>) => learningRepository.saveAssessmentDraft(answers)
+export const saveAssessmentSession = createAsyncThunk(
+  "learning/saveAssessmentSession",
+  (session: AssessmentSession) => learningRepository.saveAssessmentSession(session)
 );
 
 export const updatePreferences = createAsyncThunk(
@@ -93,7 +94,7 @@ const slice = createSlice({
 
     for (const thunk of [
       finishAssessment,
-      saveAssessmentDraft,
+      saveAssessmentSession,
       updatePreferences,
       saveLessonCheckpoint,
       finishLesson,
