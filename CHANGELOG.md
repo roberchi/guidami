@@ -23,6 +23,10 @@ Tutte le modifiche rilevanti al progetto sono documentate in questo file prima d
 
 - Uniformati in italiano tutti i testi visibili dell’applicazione e i messaggi rivolti all’utente.
 
+### Corretto
+
+- Posizione delle auto nell’illustrazione dell’incrocio, ora allineate alla corsia destra anziché alla linea centrale.
+
 ### Note
 
 - La sincronizzazione Google Drive e Microsoft OneDrive resta disattivata finché non saranno disponibili le registrazioni OAuth e i relativi identificativi pubblici.
