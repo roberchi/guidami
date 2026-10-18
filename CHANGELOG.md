@@ -6,6 +6,8 @@ Tutte le modifiche rilevanti al progetto sono documentate in questo file prima d
 
 ### Aggiunto
 
+- Assessment iniziale adattivo con autovalutazione separata, prove multimodali controbilanciate e verifiche supplementari mirate.
+- Sessione locale riprendibile con tempi orientativi, ascolti, aiuti, cambi di risposta e interruzioni, più sintesi distinta di conoscenze, linguaggio e supporti.
 - Piano di implementazione in otto fasi con dipendenze, criteri di uscita, branch previsti e vincoli esterni.
 - Fondazioni versionate per catalogo didattico, tassonomie, padronanza, ripassi e piano giornaliero deterministico.
 - Istruzioni operative per gli agenti su gestione del repository, branch, changelog, test, commit e push.
@@ -23,6 +25,7 @@ Tutte le modifiche rilevanti al progetto sono documentate in questo file prima d
 
 ### Modificato
 
+- Stato locale aggiornato allo schema 3 mantenendo compatibilità con risposte e profili delle versioni precedenti.
 - Uniformati in italiano tutti i testi visibili dell’applicazione e i messaggi rivolti all’utente.
 
 ### Corretto

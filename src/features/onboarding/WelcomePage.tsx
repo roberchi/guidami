@@ -6,7 +6,7 @@ import styles from "../../styles/App.module.scss";
 
 export function WelcomePage() {
   const navigate = useNavigate();
-  const intro = "Prima di iniziare, ti faremo sei domande brevi. Non è un esame e non ci sono voti. Puoi ascoltare ogni domanda, saltarla o fare una pausa.";
+  const intro = "Prima ti chiediamo come preferisci studiare. Poi proverai alcune situazioni con immagini, ascolto e frasi brevi. Non è un esame e non ci sono voti.";
 
   return (
     <section className={styles.flowPage}>
@@ -18,9 +18,9 @@ export function WelcomePage() {
           <p className={styles.flowLead}>{intro}</p>
           <ListenButton text={intro} label="Ascolta questa pagina" />
           <div className={styles.infoTiles}>
-            <div><Clock3 /><strong>Circa 5 minuti</strong><span>Vai con calma</span></div>
+            <div><Clock3 /><strong>Circa 10–15 minuti</strong><span>Puoi dividerli</span></div>
             <div><Pause /><strong>Puoi fermarti</strong><span>Riprenderai da qui</span></div>
-            <div><HardDrive /><strong>Solo sul dispositivo</strong><span>Nessuna registrazione</span></div>
+            <div><HardDrive /><strong>Solo sul dispositivo</strong><span>Nessun account</span></div>
           </div>
           <div className={styles.accessibilityReminder}>
             <div><Headphones size={22} /><span><strong>Ogni domanda si può ascoltare</strong><small>Useremo soltanto la voce del tuo dispositivo.</small></span></div>

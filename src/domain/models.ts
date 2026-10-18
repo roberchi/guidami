@@ -1,5 +1,6 @@
 import type { LearningAttempt, LearningProjection } from "./learning/types";
 import { emptyLearningProjection } from "./learning/types";
+import type { AssessmentSession, AssessmentSummary } from "./assessment/types";
 
 export type TextSize = "standard" | "large" | "extra-large";
 
@@ -18,6 +19,7 @@ export interface LearningProfile {
   confidence: "da verificare" | "iniziale" | "buona";
   strengths: string[];
   focusAreas: string[];
+  assessmentSummary?: AssessmentSummary;
 }
 
 export interface LearningProgress {
@@ -43,6 +45,7 @@ export interface AppSnapshot {
   contentReleaseId: string;
   profile: LearningProfile | null;
   assessmentAnswers: Record<string, string>;
+  assessmentSession: AssessmentSession | null;
   preferences: Preferences;
   progress: LearningProgress;
   learning: {
@@ -63,10 +66,11 @@ export interface LearningEvent {
 }
 
 export const defaultSnapshot: AppSnapshot = {
-  schemaVersion: 2,
+  schemaVersion: 3,
   contentReleaseId: "editorial-pilot-2026-10",
   profile: null,
   assessmentAnswers: {},
+  assessmentSession: null,
   preferences: {
     textSize: "standard",
     highContrast: false,

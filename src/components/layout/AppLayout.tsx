@@ -7,8 +7,10 @@ import styles from "../../styles/App.module.scss";
 
 export function AppLayout() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const { profile, progress, assessmentAnswers } = useAppSelector((state) => state.learning.snapshot);
-  const hasAssessmentDraft = Object.keys(assessmentAnswers).length > 0;
+  const { profile, progress, assessmentAnswers, assessmentSession } = useAppSelector((state) => state.learning.snapshot);
+  const hasAssessmentDraft = assessmentSession
+    ? assessmentSession.status !== "completed"
+    : Object.keys(assessmentAnswers).length > 0 && !profile;
   const resumePath = profile
     ? (progress.lessonStep > 0 ? "/lezione/precedenze" : "/oggi")
     : (hasAssessmentDraft ? "/valutazione" : "/inizia");
