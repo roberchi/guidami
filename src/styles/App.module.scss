@@ -283,7 +283,7 @@
   article span { color: var(--color-ink-soft); font-size: .55rem; font-weight: 800; letter-spacing: .07em; }
   article strong { font-size: .76rem; }
   article small { color: var(--color-ink-soft); font-size: .6rem; }
-  button { border: 0; background: none; color: #a3aaa6; }
+  button, a { border: 0; background: none; color: #a3aaa6; display: grid; place-items: center; }
 }
 .smallActivityIcon { width: 39px; height: 39px; display: grid; place-items: center; background: #f4eddf; border-radius: 11px; color: var(--color-orange); svg { width: 19px; } }
 .dashboardSide { display: flex; flex-direction: column; gap: 15px; }

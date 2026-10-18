@@ -1,3 +1,6 @@
+import type { LearningAttempt, LearningProjection } from "./learning/types";
+import { emptyLearningProjection } from "./learning/types";
+
 export type TextSize = "standard" | "large" | "extra-large";
 
 export interface Preferences {
@@ -36,10 +39,16 @@ export interface SyncState {
 }
 
 export interface AppSnapshot {
+  schemaVersion: number;
+  contentReleaseId: string;
   profile: LearningProfile | null;
   assessmentAnswers: Record<string, string>;
   preferences: Preferences;
   progress: LearningProgress;
+  learning: {
+    attempts: LearningAttempt[];
+    projection: LearningProjection;
+  };
   sync: SyncState;
 }
 
@@ -54,6 +63,8 @@ export interface LearningEvent {
 }
 
 export const defaultSnapshot: AppSnapshot = {
+  schemaVersion: 2,
+  contentReleaseId: "editorial-pilot-2026-10",
   profile: null,
   assessmentAnswers: {},
   preferences: {
@@ -66,6 +77,10 @@ export const defaultSnapshot: AppSnapshot = {
     completedLessons: [],
     lessonStep: 0,
     streakDays: 0
+  },
+  learning: {
+    attempts: [],
+    projection: emptyLearningProjection
   },
   sync: {
     mode: "local",
