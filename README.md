@@ -21,3 +21,5 @@ npm run build
 ```
 
 I progressi non vengono inviati a un sistema centrale: l'archivio operativo è IndexedDB. Esportazione e importazione usano copie di sicurezza JSON versionate. I contratti per gli archivi online sono indipendenti dal fornitore; Google Drive e OneDrive restano disattivati finché non vengono registrate le rispettive applicazioni OAuth.
+
+Il percorso delle prossime funzionalità, le dipendenze e i criteri di completamento sono descritti nel [piano di implementazione](./docs/piano-implementazione.md).

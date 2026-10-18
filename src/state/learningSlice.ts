@@ -1,5 +1,8 @@
 import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import { contentCatalog } from "../content/catalog/catalog";
+import { validateCatalog } from "../content/catalog/validateCatalog";
 import { buildLearningProfile } from "../domain/assessment/assessment";
+import type { LearningAttempt } from "../domain/learning/types";
 import type { AppSnapshot, Preferences } from "../domain/models";
 import { defaultSnapshot } from "../domain/models";
 import { learningRepository } from "../storage/local/LearningRepository";
@@ -15,7 +18,13 @@ const initialState: LearningState = {
   status: "idle"
 };
 
-export const bootstrapApp = createAsyncThunk("learning/bootstrap", () => learningRepository.load());
+export const bootstrapApp = createAsyncThunk("learning/bootstrap", () => {
+  const catalogErrors = validateCatalog(contentCatalog).filter((issue) => issue.severity === "error");
+  if (catalogErrors.length > 0) {
+    throw new Error("Il pacchetto dei contenuti non è valido");
+  }
+  return learningRepository.load();
+});
 
 export const finishAssessment = createAsyncThunk(
   "learning/finishAssessment",
@@ -44,6 +53,11 @@ export const saveLessonCheckpoint = createAsyncThunk(
 export const finishLesson = createAsyncThunk(
   "learning/finishLesson",
   (lessonId: string) => learningRepository.completeLesson(lessonId)
+);
+
+export const recordLearningAttempt = createAsyncThunk(
+  "learning/recordAttempt",
+  (attempt: LearningAttempt) => learningRepository.saveLearningAttempt(attempt)
 );
 
 export const importBackup = createAsyncThunk(
@@ -83,6 +97,7 @@ const slice = createSlice({
       updatePreferences,
       saveLessonCheckpoint,
       finishLesson,
+      recordLearningAttempt,
       importBackup,
       clearLocalData
     ]) {

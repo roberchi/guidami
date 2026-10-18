@@ -6,6 +6,8 @@ Tutte le modifiche rilevanti al progetto sono documentate in questo file prima d
 
 ### Aggiunto
 
+- Piano di implementazione in otto fasi con dipendenze, criteri di uscita, branch previsti e vincoli esterni.
+- Fondazioni versionate per catalogo didattico, tassonomie, padronanza, ripassi e piano giornaliero deterministico.
 - Istruzioni operative per gli agenti su gestione del repository, branch, changelog, test, commit e push.
 - Applicazione Vite, React e TypeScript configurata come SPA/PWA installabile.
 - Pagina pubblica responsive con presentazione del percorso, accessibilità, privacy e domande frequenti.
