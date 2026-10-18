@@ -1,0 +1,43 @@
+:root {
+  --color-ink: #20372c;
+  --color-ink-soft: #52645b;
+  --color-forest: #234c39;
+  --color-forest-2: #39735a;
+  --color-mint: #dcece1;
+  --color-mint-pale: #f0f7f1;
+  --color-cream: #fffaf0;
+  --color-warm: #f4eddf;
+  --color-white: #fffefa;
+  --color-yellow: #ffc857;
+  --color-orange: #ec8254;
+  --color-coral: #e76855;
+  --color-line: #d9dfd8;
+  --shadow-soft: 0 16px 45px rgba(32, 55, 44, 0.1);
+  --shadow-card: 0 8px 24px rgba(32, 55, 44, 0.08);
+  --radius-sm: 10px;
+  --radius-md: 18px;
+  --radius-lg: 28px;
+  --font-scale: 1;
+}
+
+:root[data-text-size="large"] { --font-scale: 1.1; }
+:root[data-text-size="extra-large"] { --font-scale: 1.22; }
+
+:root[data-contrast="high"] {
+  --color-ink: #07160f;
+  --color-ink-soft: #27342d;
+  --color-forest: #0a4128;
+  --color-line: #738078;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+:root[data-motion="reduced"] *,
+:root[data-motion="reduced"] *::before,
+:root[data-motion="reduced"] *::after {
+  scroll-behavior: auto !important;
+  animation-duration: 0.01ms !important;
+  transition-duration: 0.01ms !important;
+}
