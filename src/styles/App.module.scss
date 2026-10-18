@@ -216,7 +216,7 @@
 }
 .compactVisual { max-width: 550px; margin: 8px auto 20px; }
 .carLabel { position: absolute; padding: 4px 8px; border-radius: 6px; color: white; font-size: .6rem; font-weight: 800; }
-.greenLabel { left: 52%; bottom: 5%; background: var(--color-forest-2); }.orangeLabel { right: 10%; top: 46%; background: var(--color-orange); }
+.greenLabel { left: 52%; bottom: 5%; background: var(--color-forest-2); }.orangeLabel { right: 10%; top: 46%; background: var(--color-orange); }.blueLabel { left: 10%; top: 61%; background: #4f83a8; }
 
 /* Profile result */
 .resultPage { min-height: calc(100vh - 76px); padding: 55px 20px; background: radial-gradient(circle at 20% 20%, #f7e4b2, transparent 23%), var(--color-mint-pale); position: relative; overflow: hidden; }
@@ -364,7 +364,7 @@
 }
 .practiceCard { width: min(800px, 100%); margin: auto; background: white; border-radius: 24px; box-shadow: var(--shadow-card); padding: 38px; animation: rise .35s ease both; }
 .practiceCopy { text-align: center; h1 { max-width: 650px; margin: 9px auto 8px; font: 500 2.35rem/1.1 Georgia, serif; } p { color: var(--color-ink-soft); font-size: .8rem; } }
-.reverseCrossroad { width: 430px; max-width: 100%; margin: 20px auto; filter: hue-rotate(8deg); span { display: block; font-size: .6rem; color: var(--color-ink-soft); margin-top: 5px; text-align: center; filter: hue-rotate(-8deg); } }
+.reverseCrossroad { width: 430px; max-width: 100%; margin: 20px auto; span { display: block; font-size: .6rem; color: var(--color-ink-soft); margin-top: 5px; text-align: center; } }
 .practiceOptions { display: grid; grid-template-columns: 1fr 1fr; gap: 11px;
   button { min-height: 54px; border: 1px solid var(--color-line); background: white; border-radius: 12px; color: var(--color-ink); font-weight: 700; font-size: .75rem; cursor: pointer; }
 }

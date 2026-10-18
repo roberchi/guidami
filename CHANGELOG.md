@@ -25,6 +25,7 @@ Tutte le modifiche rilevanti al progetto sono documentate in questo file prima d
 
 ### Corretto
 
+- Coerenza della prova pratica: l’auto blu è ora disegnata e indicata a sinistra, nella sua corsia di marcia.
 - Posizione delle auto nell’illustrazione dell’incrocio, ora allineate alla corsia destra anziché alla linea centrale.
 
 ### Note

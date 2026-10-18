@@ -103,8 +103,8 @@ export function LessonPage() {
               <ListenButton text="Ora l’auto blu arriva dalla tua sinistra. Non ci sono segnali. Tu sei nell’auto verde. Chi passa prima?" />
             </div>
             <div className={styles.reverseCrossroad}>
-              <CrossroadIllustration />
-              <span>Immagina l’auto arancione sul lato opposto: ora arriva da sinistra.</span>
+              <CrossroadIllustration otherVehicleSide="left" />
+              <span>L’auto blu arriva dalla tua sinistra.</span>
             </div>
             <div className={styles.practiceOptions} role="radiogroup" aria-label="Chi passa per primo?">
               <button type="button" role="radio" aria-checked={answer === "green"} onClick={() => { setAnswer("green"); setChecked(false); }} className={answer === "green" ? styles.optionSelected : ""}>La mia auto verde<span /></button>
