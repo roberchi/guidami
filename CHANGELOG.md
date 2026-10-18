@@ -6,6 +6,7 @@ Tutte le modifiche rilevanti al progetto sono documentate in questo file prima d
 
 ### Aggiunto
 
+- Istruzioni operative per gli agenti su gestione del repository, branch, changelog, test, commit e push.
 - Applicazione Vite, React e TypeScript configurata come SPA/PWA installabile.
 - Pagina pubblica responsive con presentazione del percorso, accessibilità, privacy e domande frequenti.
 - Introduzione senza registrazione e valutazione iniziale non diagnostica, interrompibile e riprendibile.
