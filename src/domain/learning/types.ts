@@ -50,6 +50,7 @@ export interface LearningProjection {
 
 export interface PlannedActivity {
   activityId: string;
+  completionId: string;
   type: "lesson" | "review" | "language" | "quiz" | "simulation";
   title: string;
   description: string;
@@ -64,6 +65,19 @@ export interface DailyPlan {
   activities: PlannedActivity[];
   estimatedMinutes: number;
   summary: string;
+}
+
+export type IndicativePlanStatus = "completed" | "available" | "locked";
+
+export interface IndicativePlanItem extends PlannedActivity {
+  plannedFor: string;
+  status: IndicativePlanStatus;
+  startsEarly: boolean;
+}
+
+export interface IndicativePlan {
+  generatedAt: string;
+  items: IndicativePlanItem[];
 }
 
 export const emptyLearningProjection: LearningProjection = {

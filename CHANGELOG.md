@@ -25,6 +25,7 @@ Tutte le modifiche rilevanti al progetto sono documentate in questo file prima d
 
 ### Modificato
 
+- Il piano mostra ora una traccia indicativa che si adatta ai risultati: il prossimo passo può essere anticipato, mentre quelli successivi restano in sequenza.
 - Stato locale aggiornato allo schema 3 mantenendo compatibilità con risposte e profili delle versioni precedenti.
 - Uniformati in italiano tutti i testi visibili dell’applicazione e i messaggi rivolti all’utente.
 

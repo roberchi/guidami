@@ -58,12 +58,22 @@ export function validateCatalog(catalog: ContentCatalog): CatalogValidationIssue
   }
 
   for (const activity of catalog.activities) {
+    if (!Number.isInteger(activity.planOrder) || activity.planOrder < 1) {
+      issues.push({ path: `activities.${activity.id}.planOrder`, message: "Ordine del piano non valido", severity: "error" });
+    }
+    if (!Number.isInteger(activity.suggestedDayOffset) || activity.suggestedDayOffset < 0) {
+      issues.push({ path: `activities.${activity.id}.suggestedDayOffset`, message: "Giorno suggerito non valido", severity: "error" });
+    }
     for (const conceptId of [...activity.conceptIds, ...activity.prerequisiteConceptIds]) {
       if (!conceptIds.has(conceptId)) issues.push({ path: `activities.${activity.id}.conceptIds`, message: "Concetto inesistente", severity: "error" });
     }
     for (const featureId of activity.languageFeatureIds) {
       if (!languageIds.has(featureId)) issues.push({ path: `activities.${activity.id}.languageFeatureIds`, message: "Caratteristica linguistica inesistente", severity: "error" });
     }
+  }
+
+  for (const order of duplicates(catalog.activities.map((activity) => String(activity.planOrder)))) {
+    issues.push({ path: `activities.planOrder.${order}`, message: "Ordine del piano duplicato", severity: "error" });
   }
 
   return issues;

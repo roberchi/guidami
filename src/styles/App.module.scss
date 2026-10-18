@@ -311,6 +311,39 @@
 .progressLine { height: 6px; background: #e8ece8; border-radius: 99px; overflow: hidden; span { display: block; height: 100%; background: var(--color-yellow); } }
 .progressCard > small { display: block; margin-top: 12px; text-align: center; color: var(--color-ink-soft); font-size: .59rem; }
 .nextReview { display: flex; align-items: center; gap: 11px; svg { color: var(--color-forest-2); } div { display: flex; flex-direction: column; } strong { font-size: .72rem; } span { color: var(--color-ink-soft); font-size: .62rem; } }
+.indicativePlan { margin-top: 25px; padding: 27px; background: white; border: 1px solid var(--color-line); border-radius: 22px; box-shadow: var(--shadow-card); }
+.indicativePlanHeader { display: grid; grid-template-columns: minmax(220px, .8fr) minmax(280px, 1.2fr); gap: 32px; align-items: end;
+  h2 { margin: 5px 0 0; font: 600 1.75rem Georgia, serif; }
+  > p { margin: 0; color: var(--color-ink-soft); font-size: .75rem; line-height: 1.55; }
+}
+.indicativePlanNote { display: flex; align-items: center; gap: 11px; margin: 22px 0 18px; padding: 13px 15px; border-radius: 12px; background: #fff7df; color: #6f571b;
+  > svg { flex: 0 0 auto; width: 21px; }
+  p { margin: 0; font-size: .68rem; line-height: 1.45; }
+}
+.indicativePlanList { list-style: none; padding: 0; margin: 0; border: 1px solid var(--color-line); border-radius: 16px; overflow: hidden; }
+.indicativePlanItem { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 16px; align-items: center; padding: 18px;
+  & + & { border-top: 1px solid var(--color-line); }
+}
+.planStep { width: 39px; height: 39px; display: grid; place-items: center; border-radius: 50%; background: var(--color-forest); color: white; font-size: .7rem; font-weight: 850;
+  svg { width: 17px; }
+}
+.planItemCopy { min-width: 0;
+  > span { color: var(--color-forest-2); font-size: .57rem; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+  h3 { margin: 3px 0; font: 600 1rem Georgia, serif; }
+  p { margin: 0; color: var(--color-ink-soft); font-size: .67rem; }
+  small { display: block; margin-top: 5px; color: var(--color-forest-2); font-size: .6rem; }
+}
+.planItemAction { min-width: 145px; display: flex; flex-direction: column; align-items: flex-end; gap: 7px;
+  time { color: var(--color-ink-soft); font-size: .61rem; font-weight: 750; }
+  a { min-height: 35px; display: inline-flex; align-items: center; gap: 6px; padding: 0 12px; border-radius: 9px; background: var(--color-yellow); color: var(--color-ink); text-decoration: none; font-size: .64rem; font-weight: 850; }
+  a svg { width: 15px; }
+  > span { display: flex; align-items: center; gap: 5px; color: var(--color-ink-soft); font-size: .62rem; font-weight: 750; }
+  > span svg { width: 14px; }
+}
+.planItemLocked { background: #f8f9f6;
+  .planStep { background: #e2e6e1; color: #69746e; }
+  .planItemCopy { opacity: .72; }
+}
 .dashboardNotice { margin-top: 20px; padding: 12px 17px; background: #edf4ee; border-radius: 12px; display: flex; align-items: center; gap: 9px; color: var(--color-ink-soft); font-size: .68rem;
   svg { color: var(--color-forest-2); }
   a { margin-left: auto; font-weight: 750; color: var(--color-forest); }
@@ -455,6 +488,7 @@
   .faqHeading { position: static; }
   .privacyCard { grid-template-columns: .6fr 1.4fr; padding: 40px; }
   .todayGrid { grid-template-columns: 1fr; }.dashboardSide { display: grid; grid-template-columns: 1fr 1fr; }
+  .indicativePlanHeader { grid-template-columns: 1fr; gap: 10px; }
   .lessonTrail b { display: none; }.lessonTrail span:not(:last-child)::after { width: 25px; }
   .lessonSplit { grid-template-columns: 1fr; }.lessonSplit > .crossroadVisual { max-width: 600px; margin: auto; }.lessonCopy { max-width: 650px; margin: auto; }
 }
@@ -468,7 +502,7 @@
   .flowPage { padding: 25px 12px; }.flowContent { padding: 42px 22px; }.flowContent h1 { font-size: 2.55rem; }.infoTiles { grid-template-columns: 1fr; }.infoTiles > div { flex-direction: row; gap: 9px; padding: 13px; }.infoTiles svg { margin: 0; }.infoTiles span { margin-left: auto; }
   .assessmentTopbar { grid-template-columns: 1fr auto; }.assessmentTopbar > span { display: none; }.assessmentQuestion { padding: 35px 19px 25px; }.assessmentQuestion > h1 { font-size: 2rem; }.questionVisual { padding: 18px; }.assessmentActions { gap: 12px; }.assessmentActions .appButton { padding: 0 15px; font-size: .75rem; }.answerCounter { display: none; }
   .resultPage { padding-top: 70px; }.resultCard { padding: 39px 18px; }.resultColumns { grid-template-columns: 1fr; }.resultColumns > div + div { border-left: 0; border-top: 1px solid var(--color-line); }.assessmentEvidence { grid-template-columns: 1fr; }.assessmentEvidence > div { min-height: 90px; }.firstActivity { grid-template-columns: auto 1fr; }.firstActivity .appButton { grid-column: 1 / -1; width: 100%; }
-  .dashboardPage { padding-top: 35px; }.dashboardWelcome { align-items: start; }.dashboardWelcome h1 { font-size: 2.35rem; }.streakCard { padding: 8px; }.streakCard small { display: none; }.mainActivity { grid-template-columns: auto 1fr; padding: 22px 15px; }.activityPlay { display: none; }.mainActivityIcon { width: 46px; height: 46px; }.secondaryActivities { grid-template-columns: 1fr; }.secondaryActivities article + article { border-left: 0; border-top: 1px solid var(--color-line); }.dashboardSide { grid-template-columns: 1fr; }.dashboardNotice { align-items: flex-start; flex-wrap: wrap; }.dashboardNotice a { margin-left: 27px; }
+  .dashboardPage { padding-top: 35px; }.dashboardWelcome { align-items: start; }.dashboardWelcome h1 { font-size: 2.35rem; }.streakCard { padding: 8px; }.streakCard small { display: none; }.mainActivity { grid-template-columns: auto 1fr; padding: 22px 15px; }.activityPlay { display: none; }.mainActivityIcon { width: 46px; height: 46px; }.secondaryActivities { grid-template-columns: 1fr; }.secondaryActivities article + article { border-left: 0; border-top: 1px solid var(--color-line); }.dashboardSide { grid-template-columns: 1fr; }.indicativePlan { padding: 21px 15px; }.indicativePlanItem { grid-template-columns: auto 1fr; }.planItemAction { grid-column: 2; align-items: flex-start; }.dashboardNotice { align-items: flex-start; flex-wrap: wrap; }.dashboardNotice a { margin-left: 27px; }
   .lessonTopbar { grid-template-columns: 60px 1fr 35px; padding: 7px 12px; }.lessonTrail span:not(:last-child)::after { width: 10px; margin: 0 4px; }.lessonTrail i { margin: 0; }.lessonBody { width: calc(100% - 26px); padding: 38px 0; }.lessonIntro h1 { font-size: 2.55rem; }.lessonSupports { flex-wrap: wrap; }.lessonCopy h1 { font-size: 2.6rem; }.reasoningSteps { grid-template-columns: 1fr; }.practiceCard { padding: 29px 17px; }.practiceCopy h1 { font-size: 1.9rem; }.practiceOptions { grid-template-columns: 1fr; }
   .settingsHeader { padding: 38px 0 31px; }.settingsHeader h1 { font-size: 2.35rem; }.settingsGrid { grid-template-columns: 1fr; gap: 17px; padding-top: 20px; }.settingsNav { position: static; flex-direction: row; overflow-x: auto; }.settingsNav a { flex: 0 0 auto; background: white; }.settingsSection { padding: 20px 16px; }.settingRow { align-items: flex-start; flex-direction: column; gap: 12px; }.speechSlider { width: 100%; }.dataActions { grid-template-columns: 1fr; }.modalActions { flex-direction: column-reverse; }.modalActions .appButton { width: 100%; }
 }

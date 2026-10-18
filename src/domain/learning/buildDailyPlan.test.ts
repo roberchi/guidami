@@ -38,4 +38,22 @@ describe("piano giornaliero", () => {
     expect(plan.activities[0]).toMatchObject({ activityId: "ripasso-precedenze-base", type: "review" });
     expect(plan.activities.length).toBeLessThanOrEqual(3);
   });
+
+  it("non ripropone le attività già completate", () => {
+    const projection = projectLearning(
+      [],
+      contentCatalog.concepts.map((concept) => concept.id),
+      contentCatalog.languageFeatures.map((feature) => feature.id)
+    );
+    const plan = buildDailyPlan({
+      catalog: contentCatalog,
+      projection,
+      now: "2026-10-18T10:00:00.000Z",
+      completedActivityIds: ["precedenze-base"]
+    });
+
+    expect(plan.activities).not.toContainEqual(
+      expect.objectContaining({ activityId: "lezione-precedenze-base" })
+    );
+  });
 });
