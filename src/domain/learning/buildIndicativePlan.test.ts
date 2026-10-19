@@ -11,10 +11,11 @@ describe("piano di massima", () => {
       now: "2026-10-18T12:00:00.000Z"
     });
 
-    expect(plan.items.map((item) => [item.activityId, item.status])).toEqual([
-      ["lezione-precedenze-base", "available"],
-      ["ripasso-precedenze-base", "locked"]
-    ]);
+    expect(plan.items[0]).toMatchObject({
+      activityId: "lezione-precedenze-base",
+      status: "available"
+    });
+    expect(plan.items.slice(1).every((item) => item.status === "locked")).toBe(true);
   });
 
   it("sblocca in anticipo il passo successivo senza rendere vincolante il giorno", () => {
@@ -35,7 +36,6 @@ describe("piano di massima", () => {
 
   it("mantiene bloccati tutti i passi dopo il primo non completato", () => {
     const catalog = structuredClone(contentCatalog);
-    catalog.activities[2].available = true;
     catalog.activities[1].suggestedDayOffset = 10;
     catalog.activities[2].suggestedDayOffset = 0;
     const plan = buildIndicativePlan({
@@ -45,6 +45,10 @@ describe("piano di massima", () => {
       now: "2026-10-18T12:00:00.000Z"
     });
 
-    expect(plan.items.map((item) => item.status)).toEqual(["completed", "available", "locked"]);
+    expect(plan.items.map((item) => item.status)).toEqual([
+      "completed",
+      "available",
+      ...Array.from({ length: plan.items.length - 2 }, () => "locked")
+    ]);
   });
 });

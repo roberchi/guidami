@@ -1,41 +1,112 @@
-import { useEffect, useState } from "react";
-import { ArrowLeft, ArrowRight, Check, Eye, Lightbulb, RotateCcw, Volume2 } from "lucide-react";
-import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { ArrowLeft, ArrowRight, Check, Eye, Lightbulb, MessageCircleMore, RotateCcw, TriangleAlert, Volume2 } from "lucide-react";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { CrossroadIllustration } from "../../components/illustrations/CrossroadIllustration";
 import { AppButton } from "../../components/ui/AppButton";
 import { ListenButton } from "../../components/ui/ListenButton";
+import { contentCatalog } from "../../content/catalog/catalog";
+import type { LessonVisual } from "../../content/catalog/types";
+import { buildIndicativePlan } from "../../domain/learning/buildIndicativePlan";
+import { resolveGuidedActivity } from "../../domain/learning/guidedLesson";
 import { useAppDispatch, useAppSelector } from "../../state/hooks";
-import { finishLesson, saveLessonCheckpoint } from "../../state/learningSlice";
+import { saveLessonCheckpoint, submitActivityAnswer } from "../../state/learningSlice";
 import styles from "../../styles/App.module.scss";
+import { LanguageSupport } from "./LanguageSupport";
 
 const lessonSteps = ["Obiettivo", "La regola", "Caso guidato", "Prova tu"];
 
+function Visual({ kind }: { kind?: LessonVisual }) {
+  if (kind === "crossroad-right") return <CrossroadIllustration />;
+  if (kind === "crossroad-left") return <CrossroadIllustration otherVehicleSide="left" />;
+  if (kind === "danger-sign") {
+    return (
+      <div className={styles.dangerSignVisual} role="img" aria-label="Segnale triangolare di pericolo con bordo rosso">
+        <div><TriangleAlert aria-hidden="true" /></div>
+        <strong>Forma triangolare</strong>
+        <span>Bordo rosso: attenzione e prudenza</span>
+      </div>
+    );
+  }
+  return (
+    <div className={styles.languageLessonVisual} role="img" aria-label="Confronto tra possibilità e obbligo">
+      <MessageCircleMore aria-hidden="true" />
+      <div><strong>PUÒ</strong><span>possibilità o permesso</span></div>
+      <div><strong>DEVE</strong><span>obbligo</span></div>
+    </div>
+  );
+}
+
+function withEmphasis(text: string, emphasis?: string): ReactNode {
+  if (!emphasis) return text;
+  const start = text.toLocaleLowerCase("it-IT").indexOf(emphasis.toLocaleLowerCase("it-IT"));
+  if (start < 0) return text;
+  return <>{text.slice(0, start)}<mark>{text.slice(start, start + emphasis.length)}</mark>{text.slice(start + emphasis.length)}</>;
+}
+
 export function LessonPage() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const location = useLocation();
   const dispatch = useAppDispatch();
-  const completedLessons = useAppSelector((state) => state.learning.snapshot.progress.completedLessons);
-  const savedStep = useAppSelector((state) => state.learning.snapshot.progress.lessonStep);
-  const isReview = searchParams.get("modalita") === "ripasso";
-  const canStart = !isReview || completedLessons.includes("precedenze-base");
-  const [step, setStep] = useState(Math.min(savedStep, lessonSteps.length - 1));
+  const { profile, progress } = useAppSelector((state) => state.learning.snapshot);
+  const saveStatus = useAppSelector((state) => state.learning.status);
+  const saveError = useAppSelector((state) => state.learning.error);
+  const route = `${location.pathname}${location.search}`;
+  const activity = useMemo(
+    () => contentCatalog.activities.find((candidate) => candidate.route === route),
+    [route]
+  );
+  const resolved = useMemo(
+    () => activity ? resolveGuidedActivity(contentCatalog, activity.id) : undefined,
+    [activity]
+  );
+  const [generatedAt] = useState(() => new Date().toISOString());
+  const indicativePlan = useMemo(() => buildIndicativePlan({
+    catalog: contentCatalog,
+    completedActivityIds: progress.completedLessons,
+    startAt: profile?.assessmentCompletedAt ?? profile?.createdAt ?? generatedAt,
+    now: generatedAt
+  }), [generatedAt, profile?.assessmentCompletedAt, profile?.createdAt, progress.completedLessons]);
+  const planItem = resolved
+    ? indicativePlan.items.find((item) => item.activityId === resolved.activity.id)
+    : undefined;
+  const canStart = planItem?.status === "available" || planItem?.status === "completed";
+  const initialStep = resolved && progress.currentActivityId === resolved.activity.id
+    ? Math.min(progress.lessonStep, lessonSteps.length - 1)
+    : 0;
+  const [step, setStep] = useState(initialStep);
   const [answer, setAnswer] = useState<string>();
   const [checked, setChecked] = useState(false);
+  const [usedHelp, setUsedHelp] = useState(false);
 
   useEffect(() => {
-    if (canStart) void dispatch(saveLessonCheckpoint(step));
-  }, [canStart, dispatch, step]);
+    if (canStart && resolved) {
+      void dispatch(saveLessonCheckpoint({ activityId: resolved.activity.id, step }));
+    }
+  }, [canStart, dispatch, resolved, step]);
+
+  if (!resolved || !canStart) return <Navigate to="/oggi" replace />;
+
+  const { activity: currentActivity, lesson, exercise } = resolved;
+  const correct = answer === exercise.correctOptionId;
 
   function next() {
     if (step < lessonSteps.length - 1) setStep((current) => current + 1);
   }
 
-  async function complete() {
-    await dispatch(finishLesson(isReview ? "ripasso-precedenze-base" : "precedenze-base")).unwrap();
-    navigate("/oggi");
+  async function checkAnswer() {
+    if (!answer) return;
+    try {
+      await dispatch(submitActivityAnswer({
+        activityId: currentActivity.id,
+        exerciseId: exercise.id,
+        selectedOptionId: answer,
+        usedHelp
+      })).unwrap();
+      setChecked(true);
+    } catch {
+      // Il messaggio localizzato viene esposto dallo stato Redux nella pagina.
+    }
   }
-
-  if (!canStart) return <Navigate to="/oggi" replace />;
 
   return (
     <section className={styles.lessonPage}>
@@ -54,15 +125,15 @@ export function LessonPage() {
       <div className={styles.lessonBody}>
         {step === 0 ? (
           <div className={styles.lessonIntro}>
-            <span className={styles.flowKicker}>MICROLEZIONE · PRECEDENZE</span>
-            <h1>Chi passa per primo<br /><em>a un incrocio?</em></h1>
-            <p>Alla fine saprai riconoscere chi ha la precedenza quando non ci sono semafori né segnali.</p>
+            <span className={styles.flowKicker}>{currentActivity.type === "review" ? "RIPASSO GUIDATO" : "MICROLEZIONE"} · {lesson.title.toUpperCase()}</span>
+            <h1>{lesson.headline}</h1>
+            <p>{lesson.introduction}</p>
             <div className={styles.lessonObjective}>
               <Lightbulb />
-              <div><strong>L’obiettivo di oggi</strong><span>Guardare da dove arrivano i veicoli e applicare la regola della destra.</span></div>
+              <div><strong>L’obiettivo di oggi</strong><span>{lesson.objective}</span></div>
             </div>
             <div className={styles.lessonSupports}>
-              <span><Eye /> Illustrazione</span><span><Volume2 /> Audio disponibile</span><span>~ 7 min</span>
+              <span><Eye /> Supporto visivo</span><span><Volume2 /> Audio locale</span><span>~ {currentActivity.estimatedMinutes} min</span>
             </div>
             <AppButton icon={<ArrowRight />} onClick={next}>Inizia la spiegazione</AppButton>
           </div>
@@ -70,14 +141,14 @@ export function LessonPage() {
 
         {step === 1 ? (
           <div className={styles.lessonSplit}>
-            <CrossroadIllustration />
+            <Visual kind={lesson.visual} />
             <div className={styles.lessonCopy}>
               <span className={styles.flowKicker}>LA REGOLA</span>
-              <h1>Guarda alla tua <em>destra.</em></h1>
-              <p>Quando a un incrocio non ci sono segnali, devi dare la precedenza al veicolo che arriva dalla tua destra.</p>
-              <ListenButton text="Quando a un incrocio non ci sono segnali, devi dare la precedenza al veicolo che arriva dalla tua destra." />
-              <div className={styles.ruleCard}><span>In parole semplici</span><strong>Se qualcuno arriva da destra, lo lasci passare prima.</strong></div>
-              <div className={styles.wordNote}><strong>“Dare la precedenza”</strong><span>significa rallentare o fermarsi per lasciare passare un altro veicolo.</span></div>
+              <h1>{lesson.ruleTitle}</h1>
+              <p>{lesson.ruleExplanation}</p>
+              <ListenButton text={lesson.ruleExplanation} onListen={() => setUsedHelp(true)} />
+              <div className={styles.ruleCard}><span>In parole semplici</span><strong>{lesson.simpleExplanation}</strong></div>
+              <p className={styles.helpTrackingNote}>L’ascolto e gli aiuti vengono registrati come supporti, senza penalità.</p>
               <AppButton icon={<ArrowRight />} onClick={next}>Vediamolo insieme</AppButton>
             </div>
           </div>
@@ -87,15 +158,19 @@ export function LessonPage() {
           <div className={styles.guidedCase}>
             <div>
               <span className={styles.flowKicker}>CASO GUIDATO</span>
-              <h1>Sei nell’auto verde.</h1>
-              <p>L’auto arancione arriva dalla tua destra. Seguiamo due passaggi.</p>
+              <h1>{lesson.guidedTitle}</h1>
+              <p>{lesson.guidedDescription}</p>
             </div>
-            <CrossroadIllustration />
+            <Visual kind={lesson.visual} />
             <div className={styles.reasoningSteps}>
-              <div><span>1</span><p><strong>Da dove arriva l’altra auto?</strong> Arriva dalla tua <mark>destra</mark>.</p></div>
-              <div><span>2</span><p><strong>Quale regola usiamo?</strong> Chi arriva da destra passa <mark>per primo</mark>.</p></div>
+              {lesson.guidedSteps.map((guidedStep, index) => (
+                <div key={guidedStep.title}>
+                  <span>{index + 1}</span>
+                  <p><strong>{guidedStep.title}</strong>{withEmphasis(guidedStep.explanation, guidedStep.emphasis)}</p>
+                </div>
+              ))}
             </div>
-            <div className={styles.guidedAnswer}><Check /><span><strong>Quindi passa prima l’auto arancione.</strong><small>Tu rallenti e le dai la precedenza.</small></span></div>
+            <div className={styles.guidedAnswer}><Check /><span><strong>{lesson.guidedOutcome}</strong><small>{lesson.guidedOutcomeDetail}</small></span></div>
             <AppButton icon={<ArrowRight />} onClick={next}>Ora provo io</AppButton>
           </div>
         ) : null}
@@ -103,35 +178,58 @@ export function LessonPage() {
         {step === 3 ? (
           <div className={styles.practiceCard}>
             <div className={styles.practiceCopy}>
-              <span className={styles.flowKicker}>PROVA TU · CASO NUOVO</span>
-              <h1>Ora l’auto blu arriva dalla tua sinistra. Chi passa prima?</h1>
-              <p>Non ci sono segnali. Tu sei sempre nell’auto verde.</p>
-              <ListenButton text="Ora l’auto blu arriva dalla tua sinistra. Non ci sono segnali. Tu sei nell’auto verde. Chi passa prima?" />
+              <span className={styles.flowKicker}>PROVA TU · ESERCIZIO DIDATTICO REDAZIONALE</span>
+              <h1>{exercise.prompt}</h1>
+              <p>Rispondi senza aiuti oppure apri un supporto quando ti serve.</p>
+              <ListenButton text={exercise.prompt} onListen={() => setUsedHelp(true)} />
             </div>
             <div className={styles.reverseCrossroad}>
-              <CrossroadIllustration otherVehicleSide="left" />
-              <span>L’auto blu arriva dalla tua sinistra.</span>
+              <Visual kind={exercise.visual} />
             </div>
-            <div className={styles.practiceOptions} role="radiogroup" aria-label="Chi passa per primo?">
-              <button type="button" role="radio" aria-checked={answer === "green"} onClick={() => { setAnswer("green"); setChecked(false); }} className={answer === "green" ? styles.optionSelected : ""}>La mia auto verde<span /></button>
-              <button type="button" role="radio" aria-checked={answer === "blue"} onClick={() => { setAnswer("blue"); setChecked(false); }} className={answer === "blue" ? styles.optionSelected : ""}>L’auto che arriva da sinistra<span /></button>
+
+            <LanguageSupport exercise={exercise} onUseHelp={() => setUsedHelp(true)} />
+
+            <div className={styles.practiceOptions} role="radiogroup" aria-label={exercise.prompt}>
+              {exercise.options.map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={answer === option.id}
+                  onClick={() => { setAnswer(option.id); setChecked(false); }}
+                  className={answer === option.id ? styles.optionSelected : ""}
+                >
+                  {option.text}<span />
+                </button>
+              ))}
             </div>
 
             {checked ? (
-              <div className={answer === "green" ? styles.correctFeedback : styles.retryFeedback} role="status">
-                {answer === "green" ? <Check /> : <RotateCcw />}
+              <div className={correct ? styles.correctFeedback : styles.retryFeedback} role="status">
+                {correct ? <Check /> : <RotateCcw />}
                 <span>
-                  <strong>{answer === "green" ? "Esatto: passi prima tu." : "Riguardiamo la direzione."}</strong>
-                  <small>{answer === "green" ? "Non arriva nessuno dalla tua destra, quindi puoi proseguire con prudenza." : "L’altro veicolo è alla tua sinistra: non ha la precedenza su di te in questo caso."}</small>
+                  <strong>{correct ? exercise.feedback.correct : "Riprova con calma."}</strong>
+                  <small>{correct ? (usedHelp ? "Risposta corretta con supporto: la verificheremo più avanti senza aiuti." : "Risposta autonoma su un caso nuovo.") : exercise.feedback.incorrect}</small>
                 </span>
               </div>
             ) : null}
 
+            {checked && correct ? (
+              <div className={styles.officialTextBridge} role="note">
+                <strong>Passaggio al testo d’esame</strong>
+                <p>{lesson.officialTextIntroduction}</p>
+              </div>
+            ) : null}
+
+            {saveError ? <p className={styles.lessonSaveError} role="alert">{saveError}</p> : null}
+
             <div className={styles.practiceActions}>
-              {!checked || answer !== "green" ? (
-                <AppButton disabled={!answer} onClick={() => setChecked(true)}>Controlla la risposta</AppButton>
+              {!checked || !correct ? (
+                <AppButton disabled={!answer || saveStatus === "saving"} onClick={() => void checkAnswer()}>
+                  {saveStatus === "saving" ? "Salvataggio…" : "Controlla la risposta"}
+                </AppButton>
               ) : (
-                <AppButton icon={<ArrowRight />} onClick={() => void complete()}>Completa la lezione</AppButton>
+                <AppButton icon={<ArrowRight />} onClick={() => navigate("/oggi")}>Concludi e torna al piano</AppButton>
               )}
             </div>
           </div>

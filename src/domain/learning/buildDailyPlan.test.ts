@@ -11,7 +11,11 @@ describe("piano giornaliero", () => {
       contentCatalog.concepts.map((concept) => concept.id),
       contentCatalog.languageFeatures.map((feature) => feature.id)
     );
-    const plan = buildDailyPlan({ catalog: contentCatalog, projection, now: "2026-10-18T10:00:00.000Z" });
+    const plan = buildDailyPlan({
+      catalog: contentCatalog,
+      projection,
+      now: "2026-10-18T10:00:00.000Z"
+    });
     expect(plan.activities[0]).toMatchObject({ activityId: "lezione-precedenze-base", type: "lesson" });
     expect(plan.activities).toHaveLength(1);
   });
@@ -34,7 +38,12 @@ describe("piano giornaliero", () => {
       contentCatalog.concepts.map((concept) => concept.id),
       contentCatalog.languageFeatures.map((feature) => feature.id)
     );
-    const plan = buildDailyPlan({ catalog: contentCatalog, projection, now: "2026-10-18T10:00:00.000Z" });
+    const plan = buildDailyPlan({
+      catalog: contentCatalog,
+      projection,
+      now: "2026-10-18T10:00:00.000Z",
+      completedActivityIds: ["precedenze-base"]
+    });
     expect(plan.activities[0]).toMatchObject({ activityId: "ripasso-precedenze-base", type: "review" });
     expect(plan.activities.length).toBeLessThanOrEqual(3);
   });
@@ -55,5 +64,22 @@ describe("piano giornaliero", () => {
     expect(plan.activities).not.toContainEqual(
       expect.objectContaining({ activityId: "lezione-precedenze-base" })
     );
+    expect(plan.activities[0]).toMatchObject({ activityId: "ripasso-precedenze-base" });
+  });
+
+  it("non salta il prossimo passo della sequenza per proporre una lezione successiva", () => {
+    const projection = projectLearning(
+      [],
+      contentCatalog.concepts.map((concept) => concept.id),
+      contentCatalog.languageFeatures.map((feature) => feature.id)
+    );
+    const plan = buildDailyPlan({
+      catalog: contentCatalog,
+      projection,
+      now: "2026-10-18T10:00:00.000Z",
+      completedActivityIds: ["precedenze-base"]
+    });
+
+    expect(plan.activities.map((activity) => activity.activityId)).toEqual(["ripasso-precedenze-base"]);
   });
 });

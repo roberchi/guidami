@@ -3,7 +3,7 @@ import { contentCatalog } from "../content/catalog/catalog";
 import { validateCatalog } from "../content/catalog/validateCatalog";
 import { buildLearningProfile } from "../domain/assessment/assessment";
 import type { AssessmentSession } from "../domain/assessment/types";
-import type { LearningAttempt } from "../domain/learning/types";
+import type { LearningActivityAnswer, LearningAttempt } from "../domain/learning/types";
 import type { AppSnapshot, Preferences } from "../domain/models";
 import { defaultSnapshot } from "../domain/models";
 import { learningRepository } from "../storage/local/LearningRepository";
@@ -48,12 +48,13 @@ export const updatePreferences = createAsyncThunk(
 
 export const saveLessonCheckpoint = createAsyncThunk(
   "learning/saveLessonCheckpoint",
-  (step: number) => learningRepository.saveLessonCheckpoint(step)
+  ({ activityId, step }: { activityId: string; step: number }) =>
+    learningRepository.saveLessonCheckpoint(activityId, step)
 );
 
-export const finishLesson = createAsyncThunk(
-  "learning/finishLesson",
-  (lessonId: string) => learningRepository.completeLesson(lessonId)
+export const submitActivityAnswer = createAsyncThunk(
+  "learning/submitActivityAnswer",
+  (answer: LearningActivityAnswer) => learningRepository.saveActivityAnswer(answer)
 );
 
 export const recordLearningAttempt = createAsyncThunk(
@@ -97,7 +98,7 @@ const slice = createSlice({
       saveAssessmentSession,
       updatePreferences,
       saveLessonCheckpoint,
-      finishLesson,
+      submitActivityAnswer,
       recordLearningAttempt,
       importBackup,
       clearLocalData

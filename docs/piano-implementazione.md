@@ -25,7 +25,7 @@ Portare Guidami dall’MVP dimostrativo a una SPA/PWA locale completa, verificab
 |---|---|---|---|
 | 1. Fondazioni del dominio | `feature/learning-domain-foundation` | Completata | MVP integrato |
 | 2. Assessment adattivo | `feature/adaptive-assessment` | Completata | Fase 1 |
-| 3. Percorso e tutor linguistico | `feature/guided-learning-path` | Pianificata | Fasi 1–2 |
+| 3. Percorso e tutor linguistico | `feature/guided-learning-path` | In corso | Fasi 1–2 |
 | 4. Quiz e simulazioni | `feature/quiz-and-exam-simulation` | Pianificata | Fasi 1–3, contenuti autorizzati |
 | 5. Piano e progressi | `feature/progress-and-review` | Pianificata | Fasi 1–4 |
 | 6. Sincronizzazione cloud | `feature/cloud-sync` | Pianificata | Fase 1, registrazioni OAuth |

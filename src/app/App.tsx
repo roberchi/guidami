@@ -62,7 +62,11 @@ export function App() {
             element={snapshot.profile ? <DashboardPage /> : <Navigate to="/inizia" replace />}
           />
           <Route
-            path="/lezione/precedenze"
+            path="/lezione/:lessonSlug"
+            element={snapshot.profile ? <LessonPage /> : <Navigate to="/inizia" replace />}
+          />
+          <Route
+            path="/allenamento-linguistico/:lessonSlug"
             element={snapshot.profile ? <LessonPage /> : <Navigate to="/inizia" replace />}
           />
           <Route path="/impostazioni" element={<SettingsPage />} />

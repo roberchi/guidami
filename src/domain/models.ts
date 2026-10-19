@@ -25,6 +25,7 @@ export interface LearningProfile {
 export interface LearningProgress {
   completedLessons: string[];
   lessonStep: number;
+  currentActivityId?: string;
   streakDays: number;
   lastActivityAt?: string;
 }
@@ -66,7 +67,7 @@ export interface LearningEvent {
 }
 
 export const defaultSnapshot: AppSnapshot = {
-  schemaVersion: 3,
+  schemaVersion: 4,
   contentReleaseId: "editorial-pilot-2026-10",
   profile: null,
   assessmentAnswers: {},

@@ -45,6 +45,33 @@ export interface GlossaryEntry {
   explanation: string;
 }
 
+export type LessonVisual = "crossroad-right" | "crossroad-left" | "danger-sign" | "language";
+
+export interface GuidedLessonStep {
+  title: string;
+  explanation: string;
+  emphasis?: string;
+}
+
+export interface GuidedLessonDefinition {
+  id: string;
+  topicId: string;
+  title: string;
+  headline: string;
+  introduction: string;
+  objective: string;
+  ruleTitle: string;
+  ruleExplanation: string;
+  simpleExplanation: string;
+  visual: LessonVisual;
+  guidedTitle: string;
+  guidedDescription: string;
+  guidedSteps: GuidedLessonStep[];
+  guidedOutcome: string;
+  guidedOutcomeDetail: string;
+  officialTextIntroduction: string;
+}
+
 export interface ExerciseDefinition {
   id: string;
   version: number;
@@ -57,6 +84,7 @@ export interface ExerciseDefinition {
   prerequisiteConceptIds: string[];
   difficulty: DifficultyLevel;
   transferGroupId: string;
+  visual?: LessonVisual;
   prompt: string;
   simplifiedPrompt?: string;
   segments?: string[];
@@ -74,6 +102,8 @@ export interface ExerciseDefinition {
 export interface LearningActivityDefinition {
   id: string;
   completionId: string;
+  lessonId: string;
+  exerciseId: string;
   type: "lesson" | "review" | "language" | "quiz" | "simulation";
   title: string;
   description: string;
@@ -95,6 +125,7 @@ export interface ContentCatalog {
   concepts: ConceptDefinition[];
   languageFeatures: LanguageFeatureDefinition[];
   exercises: ExerciseDefinition[];
+  lessons: GuidedLessonDefinition[];
   activities: LearningActivityDefinition[];
 }
 

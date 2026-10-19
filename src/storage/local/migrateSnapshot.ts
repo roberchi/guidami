@@ -34,7 +34,7 @@ export function migrateSnapshot(value: unknown): AppSnapshot {
   return {
     ...structuredClone(defaultSnapshot),
     ...value,
-    schemaVersion: 3,
+    schemaVersion: 4,
     contentReleaseId: typeof value.contentReleaseId === "string"
       ? value.contentReleaseId
       : defaultSnapshot.contentReleaseId,
@@ -52,7 +52,12 @@ export function migrateSnapshot(value: unknown): AppSnapshot {
     progress: {
       ...defaultSnapshot.progress,
       ...progress,
-      completedLessons: Array.isArray(progress.completedLessons) ? progress.completedLessons as string[] : []
+      completedLessons: Array.isArray(progress.completedLessons) ? progress.completedLessons as string[] : [],
+      currentActivityId: typeof progress.currentActivityId === "string"
+        ? progress.currentActivityId
+        : typeof progress.lessonStep === "number" && progress.lessonStep > 0
+          ? "lezione-precedenze-base"
+          : undefined
     } as AppSnapshot["progress"],
     learning: {
       attempts: Array.isArray(learning.attempts)

@@ -16,6 +16,13 @@ export interface LearningAttempt {
   responseTimeMs?: number;
 }
 
+export interface LearningActivityAnswer {
+  activityId: string;
+  exerciseId: string;
+  selectedOptionId: string;
+  usedHelp: boolean;
+}
+
 export interface MasteryEstimate {
   key: string;
   dimension: MasteryDimension;

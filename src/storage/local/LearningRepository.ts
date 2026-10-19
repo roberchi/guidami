@@ -5,10 +5,15 @@ import type {
   Preferences
 } from "../../domain/models";
 import { defaultSnapshot } from "../../domain/models";
-import type { LearningAttempt } from "../../domain/learning/types";
+import type { LearningActivityAnswer, LearningAttempt } from "../../domain/learning/types";
 import type { AssessmentSession } from "../../domain/assessment/types";
 import { assessmentAnswersFromSession } from "../../domain/assessment/assessment";
 import { contentCatalog } from "../../content/catalog/catalog";
+import {
+  buildLearningAttempt,
+  isGuidedActivityAccessible,
+  resolveGuidedActivity
+} from "../../domain/learning/guidedLesson";
 import { projectLearning } from "../../domain/learning/projectLearning";
 import { db } from "./GuidamiDatabase";
 import { isSnapshotCandidate, migrateSnapshot } from "./migrateSnapshot";
@@ -63,7 +68,7 @@ export const learningRepository = {
     const storedVersion = stored?.value && typeof stored.value === "object"
       ? (stored.value as { schemaVersion?: unknown }).schemaVersion
       : undefined;
-    if (stored && storedVersion !== 3) await putSnapshot(migrated);
+    if (stored && storedVersion !== 4) await putSnapshot(migrated);
     return migrated;
   },
 
@@ -110,48 +115,59 @@ export const learningRepository = {
     return next;
   },
 
-  async saveLessonCheckpoint(step: number): Promise<AppSnapshot> {
+  async saveLessonCheckpoint(activityId: string, step: number): Promise<AppSnapshot> {
     const current = await this.load();
-    const next = { ...current, progress: { ...current.progress, lessonStep: step } };
+    if (!resolveGuidedActivity(contentCatalog, activityId)) {
+      throw new Error("Attività didattica non disponibile");
+    }
+    if (!isGuidedActivityAccessible(contentCatalog, activityId, current.progress.completedLessons)) {
+      throw new Error("Completa prima le attività precedenti del percorso");
+    }
+    const next = {
+      ...current,
+      progress: { ...current.progress, currentActivityId: activityId, lessonStep: step }
+    };
     await putSnapshot(next);
     return next;
   },
 
-  async completeLesson(lessonId: string): Promise<AppSnapshot> {
+  async saveActivityAnswer(answer: LearningActivityAnswer): Promise<AppSnapshot> {
     const current = await this.load();
     if (!current.profile) throw new Error("Profilo locale non disponibile");
+    const resolved = resolveGuidedActivity(contentCatalog, answer.activityId);
+    if (!resolved) throw new Error("Attività didattica non disponibile");
+    if (!isGuidedActivityAccessible(contentCatalog, answer.activityId, current.progress.completedLessons)) {
+      throw new Error("Completa prima le attività precedenti del percorso");
+    }
     const deviceId = await getDeviceId();
     const now = new Date().toISOString();
-    const completedLessons = Array.from(new Set([...current.progress.completedLessons, lessonId]));
-    const exerciseId = "precedenza-destra-visuale-b";
-    const attempt: LearningAttempt = {
+    const attempt = buildLearningAttempt({
       id: id("attempt"),
-      activityId: "lezione-precedenze-base",
-      exerciseId,
       occurredAt: now,
-      conceptIds: ["precedenza-destra", "incrocio-senza-segnali"],
-      languageFeatureIds: [],
-      correct: true,
-      independent: true,
-      usedHelp: false,
-      novelVariant: !current.learning.attempts.some((item) => item.exerciseId === exerciseId)
-    };
+      answer,
+      resolved,
+      previousAttempts: current.learning.attempts
+    });
+    const completedLessons = attempt.correct
+      ? Array.from(new Set([...current.progress.completedLessons, resolved.activity.completionId]))
+      : current.progress.completedLessons;
     const attempts = [...current.learning.attempts, attempt];
     const projection = project(attempts);
     const event: LearningEvent = {
       id: id("event"),
       deviceId,
       studentProfileId: current.profile.id,
-      type: "lesson.completed",
+      type: attempt.correct ? "activity.completed" : "learning.attempted",
       occurredAt: now,
-      schemaVersion: 2,
-      payload: { lessonId, attempt }
+      schemaVersion: 4,
+      payload: { completionId: resolved.activity.completionId, attempt }
     };
     const next: AppSnapshot = {
       ...current,
       progress: {
         completedLessons,
-        lessonStep: 0,
+        currentActivityId: attempt.correct ? undefined : resolved.activity.id,
+        lessonStep: attempt.correct ? 0 : current.progress.lessonStep,
         streakDays: Math.max(1, current.progress.streakDays),
         lastActivityAt: now
       },
@@ -200,7 +216,7 @@ export const learningRepository = {
     const snapshot = await this.load();
     const events = await db.events.toArray();
     return JSON.stringify(
-      { product: "guidami", schemaVersion: 3, exportedAt: new Date().toISOString(), snapshot, events },
+      { product: "guidami", schemaVersion: 4, exportedAt: new Date().toISOString(), snapshot, events },
       null,
       2
     );
@@ -212,7 +228,7 @@ export const learningRepository = {
     const backup = parsed as { product?: unknown; schemaVersion?: unknown; snapshot?: unknown; events?: unknown };
     if (
       backup.product !== "guidami" ||
-      (backup.schemaVersion !== 1 && backup.schemaVersion !== 2 && backup.schemaVersion !== 3) ||
+      (backup.schemaVersion !== 1 && backup.schemaVersion !== 2 && backup.schemaVersion !== 3 && backup.schemaVersion !== 4) ||
       !isSnapshotCandidate(backup.snapshot)
     ) {
       throw new Error("Questo file non è una copia di sicurezza Guidami compatibile");

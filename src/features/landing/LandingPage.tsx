@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { RoadIllustration } from "../../components/illustrations/RoadIllustration";
 import { useAppSelector } from "../../state/hooks";
+import { activityRoute } from "../../content/catalog/activityRoutes";
 import styles from "../../styles/App.module.scss";
 
 const steps = [
@@ -59,7 +60,7 @@ export function LandingPage() {
     ? assessmentSession.status !== "completed"
     : Object.keys(assessmentAnswers).length > 0 && !profile;
   const ctaPath = profile
-    ? (progress.lessonStep > 0 ? "/lezione/precedenze" : "/oggi")
+    ? (progress.lessonStep > 0 ? activityRoute(progress.currentActivityId) ?? "/oggi" : "/oggi")
     : (hasAssessmentDraft ? "/valutazione" : "/inizia");
 
   return (

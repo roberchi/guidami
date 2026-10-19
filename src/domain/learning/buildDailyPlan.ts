@@ -43,9 +43,11 @@ export function buildDailyPlan({
 }: PlanInput): DailyPlan {
   const candidates: PlannedActivity[] = [];
   const completed = new Set(completedActivityIds);
-  const available = catalog.activities.filter(
-    (activity) => activity.available && !completed.has(activity.completionId)
-  );
+  const nextActivity = catalog.activities
+    .filter((activity) => activity.available)
+    .sort((left, right) => left.planOrder - right.planOrder)
+    .find((activity) => !completed.has(activity.completionId));
+  const available = nextActivity ? [nextActivity] : [];
   const nowTime = new Date(now).getTime();
 
   for (const review of projection.reviews) {
@@ -84,6 +86,10 @@ export function buildDailyPlan({
 
   const fallback = available.find((activity) => activity.type === "lesson" && prerequisitesReady(activity, projection));
   if (fallback) candidates.push(toPlanned(fallback, "Puoi rafforzare la regola con un nuovo passaggio guidato.", 40));
+
+  if (nextActivity && candidates.length === 0) {
+    candidates.push(toPlanned(nextActivity, "È il prossimo passo del tuo percorso e puoi iniziarlo anche in anticipo.", 30));
+  }
 
   const activities = [...new Map(
     candidates

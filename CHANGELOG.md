@@ -6,6 +6,9 @@ Tutte le modifiche rilevanti al progetto sono documentate in questo file prima d
 
 ### Aggiunto
 
+- Motore di microlezioni guidato dal catalogo con percorsi su precedenze, segnali di pericolo e comprensione linguistica.
+- Tutor linguistico con segmentazione, indizi, parafrasi non ufficiali, glossario contestuale e lettura vocale locale.
+- Registrazione distinta delle risposte autonome e assistite, con blocco della progressione fuori sequenza anche nella persistenza locale.
 - Assessment iniziale adattivo con autovalutazione separata, prove multimodali controbilanciate e verifiche supplementari mirate.
 - Sessione locale riprendibile con tempi orientativi, ascolti, aiuti, cambi di risposta e interruzioni, più sintesi distinta di conoscenze, linguaggio e supporti.
 - Piano di implementazione in otto fasi con dipendenze, criteri di uscita, branch previsti e vincoli esterni.
@@ -25,6 +28,7 @@ Tutte le modifiche rilevanti al progetto sono documentate in questo file prima d
 
 ### Modificato
 
+- Stato locale aggiornato allo schema 4 per riprendere la specifica attività didattica interrotta.
 - Il piano mostra ora una traccia indicativa che si adatta ai risultati: il prossimo passo può essere anticipato, mentre quelli successivi restano in sequenza.
 - Stato locale aggiornato allo schema 3 mantenendo compatibilità con risposte e profili delle versioni precedenti.
 - Uniformati in italiano tutti i testi visibili dell’applicazione e i messaggi rivolti all’utente.

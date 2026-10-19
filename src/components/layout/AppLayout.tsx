@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, NavLink, Outlet } from "react-router-dom";
 import { Menu, Settings, X } from "lucide-react";
 import { Brand } from "../ui/Brand";
+import { activityRoute } from "../../content/catalog/activityRoutes";
 import { useAppSelector } from "../../state/hooks";
 import styles from "../../styles/App.module.scss";
 
@@ -12,7 +13,7 @@ export function AppLayout() {
     ? assessmentSession.status !== "completed"
     : Object.keys(assessmentAnswers).length > 0 && !profile;
   const resumePath = profile
-    ? (progress.lessonStep > 0 ? "/lezione/precedenze" : "/oggi")
+    ? (progress.lessonStep > 0 ? activityRoute(progress.currentActivityId) ?? "/oggi" : "/oggi")
     : (hasAssessmentDraft ? "/valutazione" : "/inizia");
 
   return (

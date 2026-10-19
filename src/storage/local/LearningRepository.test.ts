@@ -41,14 +41,19 @@ describe("repository locale", () => {
 
   it("inizializza lo schema corrente senza dati preesistenti", async () => {
     const snapshot = await learningRepository.load();
-    expect(snapshot.schemaVersion).toBe(3);
+    expect(snapshot.schemaVersion).toBe(4);
     expect(snapshot.learning.attempts).toEqual([]);
     expect(snapshot.learning.projection.conceptMastery["precedenza-destra"].level).toBe("unobserved");
   });
 
   it("salva atomicamente completamento, tentativo, evento e ripasso", async () => {
     await learningRepository.saveAssessment(completedAssessment, profile);
-    const snapshot = await learningRepository.completeLesson("precedenze-base");
+    const snapshot = await learningRepository.saveActivityAnswer({
+      activityId: "lezione-precedenze-base",
+      exerciseId: "precedenza-destra-visuale-b",
+      selectedOptionId: "me",
+      usedHelp: false
+    });
 
     expect(snapshot.learning.attempts).toHaveLength(1);
     expect(snapshot.learning.projection.conceptMastery["precedenza-destra"].level).toBe("emerging");
@@ -59,12 +64,17 @@ describe("repository locale", () => {
 
   it("esporta e reimporta il formato versionato", async () => {
     await learningRepository.saveAssessment(completedAssessment, profile);
-    await learningRepository.completeLesson("precedenze-base");
+    await learningRepository.saveActivityAnswer({
+      activityId: "lezione-precedenze-base",
+      exerciseId: "precedenza-destra-visuale-b",
+      selectedOptionId: "me",
+      usedHelp: false
+    });
     const backup = await learningRepository.exportData();
     await learningRepository.deleteLocalData();
 
     const restored = await learningRepository.importData(backup);
-    expect(restored.schemaVersion).toBe(3);
+    expect(restored.schemaVersion).toBe(4);
     expect(restored.profile?.id).toBe(profile.id);
     expect(restored.learning.attempts).toHaveLength(1);
   });
@@ -72,10 +82,41 @@ describe("repository locale", () => {
   it("rifiuta copie di sicurezza prive della struttura locale richiesta", async () => {
     await expect(learningRepository.importData(JSON.stringify({
       product: "guidami",
-      schemaVersion: 3,
+      schemaVersion: 4,
       snapshot: { preferences: {} },
       events: []
     }))).rejects.toThrow("copia di sicurezza Guidami compatibile");
+  });
+
+  it("salva separatamente una risposta assistita senza accreditarla come autonoma", async () => {
+    await learningRepository.saveAssessment(completedAssessment, profile);
+    const snapshot = await learningRepository.saveActivityAnswer({
+      activityId: "lezione-precedenze-base",
+      exerciseId: "precedenza-destra-visuale-b",
+      selectedOptionId: "me",
+      usedHelp: true
+    });
+
+    expect(snapshot.learning.attempts[0]).toMatchObject({
+      correct: true,
+      independent: false,
+      usedHelp: true
+    });
+    expect(snapshot.learning.projection.conceptMastery["precedenza-destra"]).toMatchObject({
+      independentCorrectCount: 0,
+      assistedCorrectCount: 1
+    });
+  });
+
+  it("rifiuta il completamento di un’attività successiva fuori sequenza", async () => {
+    await learningRepository.saveAssessment(completedAssessment, profile);
+
+    await expect(learningRepository.saveActivityAnswer({
+      activityId: "linguaggio-verbi-modali",
+      exerciseId: "linguaggio-puo-deve-a",
+      selectedOptionId: "obligation",
+      usedHelp: false
+    })).rejects.toThrow("Completa prima le attività precedenti");
   });
 
   it("ripristina domanda corrente, risposta e interruzione della sessione", async () => {
