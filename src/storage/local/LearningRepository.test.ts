@@ -41,7 +41,7 @@ describe("repository locale", () => {
 
   it("inizializza lo schema corrente senza dati preesistenti", async () => {
     const snapshot = await learningRepository.load();
-    expect(snapshot.schemaVersion).toBe(4);
+    expect(snapshot.schemaVersion).toBe(5);
     expect(snapshot.learning.attempts).toEqual([]);
     expect(snapshot.learning.projection.conceptMastery["precedenza-destra"].level).toBe("unobserved");
   });
@@ -74,7 +74,7 @@ describe("repository locale", () => {
     await learningRepository.deleteLocalData();
 
     const restored = await learningRepository.importData(backup);
-    expect(restored.schemaVersion).toBe(4);
+    expect(restored.schemaVersion).toBe(5);
     expect(restored.profile?.id).toBe(profile.id);
     expect(restored.learning.attempts).toHaveLength(1);
   });
@@ -82,7 +82,7 @@ describe("repository locale", () => {
   it("rifiuta copie di sicurezza prive della struttura locale richiesta", async () => {
     await expect(learningRepository.importData(JSON.stringify({
       product: "guidami",
-      schemaVersion: 4,
+      schemaVersion: 5,
       snapshot: { preferences: {} },
       events: []
     }))).rejects.toThrow("copia di sicurezza Guidami compatibile");
@@ -106,6 +106,20 @@ describe("repository locale", () => {
       independentCorrectCount: 0,
       assistedCorrectCount: 1
     });
+  });
+
+  it("conserva localmente il risultato dichiarato della verifica ministeriale esterna", async () => {
+    await learningRepository.saveAssessment(completedAssessment, profile);
+
+    const snapshot = await learningRepository.saveOfficialExternalTestResult("verifica-ufficiale-ab", 3);
+
+    expect(snapshot.learning.officialResults[0]).toMatchObject({
+      blueprintId: "verifica-ufficiale-ab",
+      officialReferenceId: "ministero-patente-ab-2025-11",
+      errorCount: 3,
+      passed: true
+    });
+    expect(await db.events.where("type").equals("official-test.recorded").count()).toBe(1);
   });
 
   it("rifiuta il completamento di un’attività successiva fuori sequenza", async () => {

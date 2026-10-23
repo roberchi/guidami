@@ -1,4 +1,4 @@
-import type { LearningAttempt, LearningProjection } from "./learning/types";
+import type { LearningAttempt, LearningProjection, OfficialExternalTestResult } from "./learning/types";
 import { emptyLearningProjection } from "./learning/types";
 import type { AssessmentSession, AssessmentSummary } from "./assessment/types";
 
@@ -52,6 +52,7 @@ export interface AppSnapshot {
   learning: {
     attempts: LearningAttempt[];
     projection: LearningProjection;
+    officialResults: OfficialExternalTestResult[];
   };
   sync: SyncState;
 }
@@ -67,7 +68,7 @@ export interface LearningEvent {
 }
 
 export const defaultSnapshot: AppSnapshot = {
-  schemaVersion: 4,
+  schemaVersion: 5,
   contentReleaseId: "editorial-pilot-2026-10",
   profile: null,
   assessmentAnswers: {},
@@ -85,7 +86,8 @@ export const defaultSnapshot: AppSnapshot = {
   },
   learning: {
     attempts: [],
-    projection: emptyLearningProjection
+    projection: emptyLearningProjection,
+    officialResults: []
   },
   sync: {
     mode: "local",

@@ -5,10 +5,11 @@ import type {
   Preferences
 } from "../../domain/models";
 import { defaultSnapshot } from "../../domain/models";
-import type { LearningActivityAnswer, LearningAttempt } from "../../domain/learning/types";
+import type { LearningActivityAnswer, LearningAttempt, OfficialExternalTestResult } from "../../domain/learning/types";
 import type { AssessmentSession } from "../../domain/assessment/types";
 import { assessmentAnswersFromSession } from "../../domain/assessment/assessment";
 import { contentCatalog } from "../../content/catalog/catalog";
+import { testCatalog } from "../../content/catalog/testCatalog";
 import {
   buildLearningAttempt,
   isGuidedActivityAccessible,
@@ -61,6 +62,7 @@ export const learningRepository = {
     const migrated: AppSnapshot = {
       ...snapshot,
       learning: {
+        ...snapshot.learning,
         attempts,
         projection: project(attempts)
       }
@@ -68,7 +70,7 @@ export const learningRepository = {
     const storedVersion = stored?.value && typeof stored.value === "object"
       ? (stored.value as { schemaVersion?: unknown }).schemaVersion
       : undefined;
-    if (stored && storedVersion !== 4) await putSnapshot(migrated);
+    if (stored && storedVersion !== 5) await putSnapshot(migrated);
     return migrated;
   },
 
@@ -171,7 +173,7 @@ export const learningRepository = {
         streakDays: Math.max(1, current.progress.streakDays),
         lastActivityAt: now
       },
-      learning: { attempts, projection }
+      learning: { ...current.learning, attempts, projection }
     };
     await db.transaction("rw", db.events, db.records, db.attempts, db.reviews, async () => {
       await db.events.add(event);
@@ -201,7 +203,7 @@ export const learningRepository = {
     const next: AppSnapshot = {
       ...current,
       progress: { ...current.progress, lastActivityAt: attempt.occurredAt },
-      learning: { attempts, projection }
+      learning: { ...current.learning, attempts, projection }
     };
     await db.transaction("rw", db.events, db.records, db.attempts, db.reviews, async () => {
       await db.events.add(event);
@@ -212,11 +214,63 @@ export const learningRepository = {
     return next;
   },
 
+  async saveOfficialExternalTestResult(
+    blueprintId: string,
+    errorCount: number
+  ): Promise<AppSnapshot> {
+    const current = await this.load();
+    if (!current.profile) throw new Error("Profilo locale non disponibile");
+    if (!Number.isInteger(errorCount) || errorCount < 0) {
+      throw new Error("Il numero di errori non è valido");
+    }
+    const blueprint = testCatalog.blueprints.find((item) => item.id === blueprintId && item.mode === "official-external");
+    const reference = blueprint?.officialReferenceId
+      ? testCatalog.officialReferences.find((item) => item.id === blueprint.officialReferenceId)
+      : undefined;
+    if (!blueprint || !reference || reference.accessMode !== "external-link-only") {
+      throw new Error("La verifica ministeriale non è disponibile");
+    }
+    if (errorCount > reference.examFormat.questionCount) {
+      throw new Error("Il numero di errori supera il numero di quiz della prova");
+    }
+
+    const deviceId = await getDeviceId();
+    const occurredAt = new Date().toISOString();
+    const result: OfficialExternalTestResult = {
+      blueprintId,
+      officialReferenceId: reference.id,
+      occurredAt,
+      errorCount,
+      passed: errorCount <= reference.examFormat.maximumErrorsToPass
+    };
+    const event: LearningEvent = {
+      id: id("event"),
+      deviceId,
+      studentProfileId: current.profile.id,
+      type: "official-test.recorded",
+      occurredAt,
+      schemaVersion: 5,
+      payload: result
+    };
+    const next: AppSnapshot = {
+      ...current,
+      learning: {
+        ...current.learning,
+        officialResults: [...current.learning.officialResults, result]
+      }
+    };
+    await db.transaction("rw", db.events, db.records, async () => {
+      await db.events.add(event);
+      await putSnapshot(next);
+    });
+    return next;
+  },
+
   async exportData(): Promise<string> {
     const snapshot = await this.load();
     const events = await db.events.toArray();
     return JSON.stringify(
-      { product: "guidami", schemaVersion: 4, exportedAt: new Date().toISOString(), snapshot, events },
+      { product: "guidami", schemaVersion: 5, exportedAt: new Date().toISOString(), snapshot, events },
       null,
       2
     );
@@ -228,7 +282,7 @@ export const learningRepository = {
     const backup = parsed as { product?: unknown; schemaVersion?: unknown; snapshot?: unknown; events?: unknown };
     if (
       backup.product !== "guidami" ||
-      (backup.schemaVersion !== 1 && backup.schemaVersion !== 2 && backup.schemaVersion !== 3 && backup.schemaVersion !== 4) ||
+      (backup.schemaVersion !== 1 && backup.schemaVersion !== 2 && backup.schemaVersion !== 3 && backup.schemaVersion !== 4 && backup.schemaVersion !== 5) ||
       !isSnapshotCandidate(backup.snapshot)
     ) {
       throw new Error("Questo file non è una copia di sicurezza Guidami compatibile");

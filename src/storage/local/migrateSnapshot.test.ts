@@ -11,11 +11,12 @@ describe("migrazione dello stato locale", () => {
       sync: { mode: "local", pendingBatchIds: [], status: "local" }
     });
 
-    expect(migrated.schemaVersion).toBe(4);
+    expect(migrated.schemaVersion).toBe(5);
     expect(migrated.profile?.id).toBe("profile-1");
     expect(migrated.progress.completedLessons).toEqual(["precedenze-base"]);
     expect(migrated.learning.attempts).toEqual([]);
     expect(migrated.learning.projection.projectorVersion).toBe(1);
+    expect(migrated.learning.officialResults).toEqual([]);
     expect(migrated.assessmentAnswers).toEqual({ confidence: "some" });
     expect(migrated.assessmentSession).toBeNull();
     expect(migrated.progress.currentActivityId).toBe("lezione-precedenze-base");
@@ -29,7 +30,7 @@ describe("migrazione dello stato locale", () => {
 
   it("conserva l’attività didattica da riprendere nello schema corrente", () => {
     const migrated = migrateSnapshot({
-      schemaVersion: 4,
+      schemaVersion: 5,
       preferences: {},
       progress: {
         completedLessons: ["precedenze-base"],

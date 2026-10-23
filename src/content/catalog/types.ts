@@ -2,6 +2,7 @@ export type ContentOrigin = "editorial" | "official";
 export type ContentReviewStatus = "draft" | "reviewed" | "published" | "quarantined";
 export type ExerciseKind = "concept-check" | "language-training" | "official-question";
 export type DifficultyLevel = 1 | 2 | 3;
+export type TestMode = "didactic" | "official-external";
 
 export interface ContentSource {
   publisher: string;
@@ -10,6 +11,45 @@ export interface ContentSource {
   sourceVersion: string;
   checksum: string;
   licenseStatus: "verified" | "pending" | "restricted";
+}
+
+/**
+ * Riferimento a una prova pubblicata dal Ministero. Il listato non viene
+ * incluso nell'app finché non esiste un'autorizzazione di riuso verificata.
+ */
+export interface OfficialTestReference {
+  id: string;
+  category: "AM" | "AB" | "superiori" | "CQC";
+  title: string;
+  publicUrl: string;
+  retrievedAt: string;
+  sourceVersion: string;
+  licenseStatus: "pending" | "verified" | "restricted";
+  accessMode: "external-link-only" | "embedded-authorized";
+  examFormat: {
+    questionCount: number;
+    durationMinutes: number;
+    maximumErrorsToPass: number;
+  };
+}
+
+/** Un insieme intenzionale di esercizi redazionali da assegnare dal motore. */
+export interface TestBlueprint {
+  id: string;
+  title: string;
+  description: string;
+  mode: TestMode;
+  targetLevel: DifficultyLevel;
+  topicIds: string[];
+  conceptIds: string[];
+  languageFeatureIds: string[];
+  exerciseIds: string[];
+  selection: {
+    minimumItems: number;
+    maximumItems: number;
+    requiresNovelVariant: boolean;
+  };
+  officialReferenceId?: string;
 }
 
 export interface TopicDefinition {
@@ -127,6 +167,14 @@ export interface ContentCatalog {
   exercises: ExerciseDefinition[];
   lessons: GuidedLessonDefinition[];
   activities: LearningActivityDefinition[];
+}
+
+export interface TestCatalog {
+  releaseId: string;
+  schemaVersion: number;
+  publishedAt: string;
+  officialReferences: OfficialTestReference[];
+  blueprints: TestBlueprint[];
 }
 
 export interface CatalogValidationIssue {

@@ -1,0 +1,73 @@
+{
+  "releaseId": "piano-test-editoriale-2026-10",
+  "schemaVersion": 1,
+  "publishedAt": "2026-10-23T00:00:00.000Z",
+  "officialReferences": [
+    {
+      "id": "ministero-patente-ab-2025-11",
+      "category": "AB",
+      "title": "Listato quiz per patenti A e B",
+      "publicUrl": "https://www.ilportaledellautomobilista.it/documents/56611/57319/210926_Conseguimento%2BA-B%2Bitaliano.pdf/07091bb8-a16b-4fa1-b921-4fd21fa5b650",
+      "retrievedAt": "2026-10-23",
+      "sourceVersion": "Portale dell'Automobilista, aggiornamento comunicazione 25-11-2025",
+      "licenseStatus": "pending",
+      "accessMode": "external-link-only",
+      "examFormat": {
+        "questionCount": 30,
+        "durationMinutes": 20,
+        "maximumErrorsToPass": 3
+      }
+    }
+  ],
+  "blueprints": [
+    {
+      "id": "fondamenti-precedenze",
+      "title": "Fondamenti: precedenze",
+      "description": "Verifica redazionale breve, visiva e progressiva sulla precedenza a destra.",
+      "mode": "didactic",
+      "targetLevel": 1,
+      "topicIds": ["precedenze"],
+      "conceptIds": ["precedenza-destra", "incrocio-senza-segnali"],
+      "languageFeatureIds": [],
+      "exerciseIds": ["precedenza-destra-visuale-a", "precedenza-destra-visuale-b", "precedenza-destra-visuale-c"],
+      "selection": { "minimumItems": 2, "maximumItems": 3, "requiresNovelVariant": true }
+    },
+    {
+      "id": "lettura-regole-base",
+      "title": "Leggere le regole: livello base",
+      "description": "Verifica redazionale sulle parole che cambiano il significato di una regola.",
+      "mode": "didactic",
+      "targetLevel": 1,
+      "topicIds": ["comportamento"],
+      "conceptIds": ["obbligo-possibilita"],
+      "languageFeatureIds": ["verbi-modali", "negazione", "eccezione", "assoluti"],
+      "exerciseIds": ["linguaggio-puo-deve-a", "linguaggio-negazione-a", "linguaggio-eccezione-a", "linguaggio-assoluti-a"],
+      "selection": { "minimumItems": 3, "maximumItems": 4, "requiresNovelVariant": true }
+    },
+    {
+      "id": "segnali-pericolo-base",
+      "title": "Segnali di pericolo: riconoscimento",
+      "description": "Verifica redazionale della funzione dei segnali prima del lessico tecnico.",
+      "mode": "didactic",
+      "targetLevel": 1,
+      "topicIds": ["segnali-pericolo"],
+      "conceptIds": ["segnale-pericolo"],
+      "languageFeatureIds": [],
+      "exerciseIds": ["segnale-pericolo-forma-a"],
+      "selection": { "minimumItems": 1, "maximumItems": 1, "requiresNovelVariant": false }
+    },
+    {
+      "id": "verifica-ufficiale-ab",
+      "title": "Verifica ufficiale Patente A/B",
+      "description": "Passaggio esterno al listato ministeriale: l'app non copia i quesiti e registra solo il risultato dichiarato dallo studente.",
+      "mode": "official-external",
+      "targetLevel": 3,
+      "topicIds": [],
+      "conceptIds": [],
+      "languageFeatureIds": [],
+      "exerciseIds": [],
+      "selection": { "minimumItems": 30, "maximumItems": 30, "requiresNovelVariant": true },
+      "officialReferenceId": "ministero-patente-ab-2025-11"
+    }
+  ]
+}

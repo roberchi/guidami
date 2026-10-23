@@ -34,7 +34,7 @@ export function migrateSnapshot(value: unknown): AppSnapshot {
   return {
     ...structuredClone(defaultSnapshot),
     ...value,
-    schemaVersion: 4,
+    schemaVersion: 5,
     contentReleaseId: typeof value.contentReleaseId === "string"
       ? value.contentReleaseId
       : defaultSnapshot.contentReleaseId,
@@ -69,7 +69,10 @@ export function migrateSnapshot(value: unknown): AppSnapshot {
         conceptMastery: isRecord(projection.conceptMastery) ? projection.conceptMastery : {},
         languageMastery: isRecord(projection.languageMastery) ? projection.languageMastery : {},
         reviews: Array.isArray(projection.reviews) ? projection.reviews : []
-      } as AppSnapshot["learning"]["projection"]
+      } as AppSnapshot["learning"]["projection"],
+      officialResults: Array.isArray(learning.officialResults)
+        ? learning.officialResults as AppSnapshot["learning"]["officialResults"]
+        : []
     },
     sync: {
       ...defaultSnapshot.sync,

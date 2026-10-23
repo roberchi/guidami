@@ -23,6 +23,15 @@ export interface LearningActivityAnswer {
   usedHelp: boolean;
 }
 
+/** Risultato dichiarato dall'utente dopo una prova svolta sul sito ufficiale. */
+export interface OfficialExternalTestResult {
+  blueprintId: string;
+  officialReferenceId: string;
+  occurredAt: string;
+  errorCount: number;
+  passed: boolean;
+}
+
 export interface MasteryEstimate {
   key: string;
   dimension: MasteryDimension;

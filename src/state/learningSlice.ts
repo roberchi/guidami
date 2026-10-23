@@ -1,6 +1,8 @@
 import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import { contentCatalog } from "../content/catalog/catalog";
+import { testCatalog } from "../content/catalog/testCatalog";
 import { validateCatalog } from "../content/catalog/validateCatalog";
+import { validateTestCatalog } from "../content/catalog/validateTestCatalog";
 import { buildLearningProfile } from "../domain/assessment/assessment";
 import type { AssessmentSession } from "../domain/assessment/types";
 import type { LearningActivityAnswer, LearningAttempt } from "../domain/learning/types";
@@ -23,6 +25,9 @@ export const bootstrapApp = createAsyncThunk("learning/bootstrap", () => {
   const catalogErrors = validateCatalog(contentCatalog).filter((issue) => issue.severity === "error");
   if (catalogErrors.length > 0) {
     throw new Error("Il pacchetto dei contenuti non è valido");
+  }
+  if (validateTestCatalog(testCatalog, contentCatalog).length > 0) {
+    throw new Error("Il piano dei test non è valido");
   }
   return learningRepository.load();
 });
@@ -60,6 +65,12 @@ export const submitActivityAnswer = createAsyncThunk(
 export const recordLearningAttempt = createAsyncThunk(
   "learning/recordAttempt",
   (attempt: LearningAttempt) => learningRepository.saveLearningAttempt(attempt)
+);
+
+export const recordOfficialExternalTestResult = createAsyncThunk(
+  "learning/recordOfficialExternalTestResult",
+  ({ blueprintId, errorCount }: { blueprintId: string; errorCount: number }) =>
+    learningRepository.saveOfficialExternalTestResult(blueprintId, errorCount)
 );
 
 export const importBackup = createAsyncThunk(
@@ -100,6 +111,7 @@ const slice = createSlice({
       saveLessonCheckpoint,
       submitActivityAnswer,
       recordLearningAttempt,
+      recordOfficialExternalTestResult,
       importBackup,
       clearLocalData
     ]) {

@@ -6,6 +6,10 @@ Tutte le modifiche rilevanti al progetto sono documentate in questo file prima d
 
 ### Aggiunto
 
+- Piano JSON versionato per le verifiche didattiche e per il collegamento esterno al listato ministeriale Patente A/B, senza includere i relativi quesiti nel pacchetto dell'app.
+- Selezione deterministica del prossimo test in base alle evidenze di apprendimento, con accesso alla verifica ufficiale solo dopo un consolidamento editoriale sufficiente.
+- Registrazione locale del numero di errori dichiarato dopo una prova ministeriale esterna, senza trasmettere risultati al prodotto o copiare il listato ufficiale.
+
 - Motore di microlezioni guidato dal catalogo con percorsi su precedenze, segnali di pericolo e comprensione linguistica.
 - Tutor linguistico con segmentazione, indizi, parafrasi non ufficiali, glossario contestuale e lettura vocale locale.
 - Registrazione distinta delle risposte autonome e assistite, con blocco della progressione fuori sequenza anche nella persistenza locale.
@@ -28,6 +32,7 @@ Tutte le modifiche rilevanti al progetto sono documentate in questo file prima d
 
 ### Modificato
 
+- Stato locale aggiornato allo schema 5 per conservare i risultati dichiarati delle verifiche ministeriali esterne.
 - Stato locale aggiornato allo schema 4 per riprendere la specifica attività didattica interrotta.
 - Il piano mostra ora una traccia indicativa che si adatta ai risultati: il prossimo passo può essere anticipato, mentre quelli successivi restano in sequenza.
 - Stato locale aggiornato allo schema 3 mantenendo compatibilità con risposte e profili delle versioni precedenti.
